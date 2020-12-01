@@ -1,6 +1,6 @@
 const xapi = require('xapi');
 
-const PEXIP_INSTANCE_URL = 'vctest.equinor.com';
+const PEXIP_INSTANCE_URL = '';
 const PEXIP_VMR = 'https://' + PEXIP_INSTANCE_URL + '/api/client/v2/conferences/';
 const REQUESTTOKEN = '/request_token';
 const REFRESHTOKEN = '/refresh_token';
