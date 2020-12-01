@@ -1,0 +1,13 @@
+<Extensions>
+  <Version>1.7</Version>
+  <Panel>
+    <Order>6</Order>
+    <PanelId>layout</PanelId>
+    <Origin>local</Origin>
+    <Type>Statusbar</Type>
+    <Icon>Tv</Icon>
+    <Color>#30D557</Color>
+    <Name>Layout</Name>
+    <ActivityType>Custom</ActivityType>
+  </Panel>
+</Extensions>
