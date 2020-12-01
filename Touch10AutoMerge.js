@@ -41,6 +41,14 @@ xapi.status.on('Call', InCallStatus =>
   }
 );
 
+/*
+The better way...
+xapi.status.get('Converence Multipoint Mode').then((State) => 
+    {​​​​
+        MultiPointMode = State;
+    }​​​​);
+*/
+
 xapi.status.on('SystemUnit State NumberOfActiveCalls', NumCalls =>
   {
     NumCall = Number.parseInt(NumCalls);
