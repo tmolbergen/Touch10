@@ -4,6 +4,7 @@
 
 
 *Please note that this macro has not been fully tested and could prove to not function correctly... Use at own risk...*
+*This macro was not created by a developer, therefore the code looks like a spaghetti mess thrown together*
 
 - **Functionality**: This macro allows a user to control the layout on a by using a Pexip VMR
 - **Requirements**: Endpoint has to be registered on CUCM or be in a call with a known Pexip VMR
