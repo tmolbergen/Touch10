@@ -243,6 +243,11 @@ function OutOfVMR()
     {
         console.log("Not Showing Layout Menu");
         StopTimer();
+        xapi.command("UserInterface Extensions Panel Update",
+            { 
+                PanelId: 'layout',
+                Visibility: 'Hidden'
+            });
         xapi.status.on("Call", InCall =>
         {
             if (InCall.RemoteNumber !== undefined)
@@ -273,11 +278,7 @@ function OutOfVMR()
                 }
             }
         });
-        xapi.command("UserInterface Extensions Panel Update",
-            { 
-                PanelId: 'layout',
-                Visibility: 'Hidden'
-            });
+        
     }
 
 function FetchPin()
