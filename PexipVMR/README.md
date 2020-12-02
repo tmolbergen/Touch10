@@ -1,6 +1,10 @@
 # Pexip VMR Control
 
 **This script is to be used for controlling a Pexip VMR escalated call**
+
+
+*Please note that this macro has not been fully tested and could prove to not function correctly... Use at own risk...*
+
 - **Functionality**: This macro allows a user to control the layout on a by using a Pexip VMR
 - **Requirements**: Endpoint has to be registered on CUCM or be in a call with a known Pexip VMR
 
