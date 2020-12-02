@@ -21,3 +21,10 @@
 3. Change VMRPREFIX to match your number pattern for your VMRs
     - This matchpattern is based on regex so therefore you have to create a regex rule which will match the VMRs that the endpoint can end up in. 
     - The match will only happen on the first part of the URI, the @domain.example is split below (dont want to have to parse the domain aswell)    
+
+
+**FlowChart**
+
+
+
+![flowchart](./assets/flowchart.svg)
