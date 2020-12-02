@@ -1,6 +1,6 @@
 const xapi = require('xapi');
 
-const PEXIP_INSTANCE_URL = '';
+const PEXIP_INSTANCE_URL = 'vctest.equinor.com';
 const PEXIP_VMR = 'https://' + PEXIP_INSTANCE_URL + '/api/client/v2/conferences/';
 const REQUESTTOKEN = '/request_token';
 const REFRESHTOKEN = '/refresh_token';
@@ -8,15 +8,17 @@ const RELEASE = '/release_token';
 const CONTENT_TYPE = "Content-Type: application/json";
 const ACCEPT_TYPE = "Accept:application/json";
 const ESCALATEPREFIX = /666\d+/g; // Regex... 
+const VMRPREFIX = /555\d+/g; // Regex to match for VMRs (which are not ad-hoc escalated)
 var token = '';
 var timeout = '';
 var DeviceType = "";
 var VMRNUMBER = "";
 var Interval = "";
 var NumCall = 0; 
+var VMRPIN = "";
 /* TIMER */
 
-function startTimer(seconds, conference, option) {
+function startTimer(seconds, conference) {
     var timer = seconds;
     Interval = setInterval(function () {
         seconds = parseInt(timer % 60, 10);
@@ -47,7 +49,7 @@ function CallPexipVMR(conference, option)
        'display_name': 'Touch10Api',
        'call_tag': 'Test'
     };
-  if(option == '/request_token')
+    if(option == '/request_token')
     {
         console.log("Matched request Token: " + PEXIP_VMR + conference + option);
         xapi.command('HttpClient Post',
@@ -55,7 +57,7 @@ function CallPexipVMR(conference, option)
             'Header': 
             [
             'Content-Type: application/json',
-
+            'pin:' + VMRPIN,
             ],
             'Url': PEXIP_VMR + conference + option,
             'AllowInsecureHTTPS': 'True',
@@ -74,7 +76,7 @@ function CallPexipVMR(conference, option)
             console.log(token);
             console.log(timeout);
             StopTimer();
-            startTimer(timeout, conference, option);
+            startTimer(timeout, conference); //startTimer(timeout, conference, option);
             }
         )
         .catch(
@@ -83,9 +85,9 @@ function CallPexipVMR(conference, option)
             console.error(result);
             }
         );
-  }
-  else if(option == '/refresh_token' || option == '/release_token' )
-  {
+    }
+    else if(option == '/refresh_token' || option == '/release_token' )
+    {
     console.log("Matched refresh or Release Token: " + PEXIP_VMR + conference + option);
         xapi.command('HttpClient Post',
             {
@@ -111,10 +113,11 @@ function CallPexipVMR(conference, option)
             console.log(token);
             console.log(timeout);
             var prefixcheck = VMRNUMBER.match(ESCALATEPREFIX);
-            if (NumCall === 1 && prefixcheck)
+            var vmrcheck = VMRNUMBER.match(VMRPREFIX)
+            if (NumCall === 1 && prefixcheck || vmrcheck)
             {
                 StopTimer();
-                startTimer(timeout, conference, option);
+                startTimer(timeout, conference);
             }
             else
             {
@@ -143,8 +146,6 @@ function LayoutVMR(conference, layout)
                 'layout': layout
             }
     };
-    if (option === "")
-    {
         xapi.command('HttpClient Post',
         {
         'Header': 
@@ -164,15 +165,16 @@ function LayoutVMR(conference, layout)
         //console.log(body);
         console.log(result.Body);
         var bodystring = JSON.parse(result.Body);
-        token = bodystring.result.token;
-        timeout = bodystring.result.expires -110; // -110 for faster debugging
-        console.log(token);
-        console.log(timeout);
+        //token = bodystring.result.token;
+        //timeout = bodystring.result.expires -110; // -110 for faster debugging
+        //console.log(token);
+        //console.log(timeout);
         var prefixcheck = VMRNUMBER.match(ESCALATEPREFIX);
-        if (NumCall === 1 && prefixcheck)
+        var vmrcheck = VMRNUMBER.match(VMRPREFIX);
+        if (NumCall === 1 && prefixcheck || vmrcheck)
         {
             StopTimer();
-            startTimer(timeout, conference, option);
+            startTimer(timeout, conference);
         }
         else
         {
@@ -187,7 +189,6 @@ function LayoutVMR(conference, layout)
         console.error(result);
         }
     );
-    }
     
 }
 
@@ -206,9 +207,14 @@ function InVMR()
           {
             VMRNUMBER = InCall.RemoteNumber.split("@")[0];
             var prefixcheck = VMRNUMBER.match(ESCALATEPREFIX);
+            var vmrcheck = VMRNUMBER.match(VMRPREFIX);
             console.log(prefixcheck);
             console.log("VMRNUMBER is: " + VMRNUMBER);
             if (prefixcheck)
+            {
+                CallPexipVMR(VMRNUMBER, REQUESTTOKEN);
+            }
+            else if(vmrcheck && VMRPIN !== "")
             {
                 CallPexipVMR(VMRNUMBER, REQUESTTOKEN);
             }
@@ -245,8 +251,9 @@ function OutOfVMR()
                 VMRNUMBER = InCall.RemoteNumber.split("@")[0];
                 console.log("InCall with number is: " + VMRNUMBER);
                 var prefixcheck = VMRNUMBER.match(ESCALATEPREFIX);
+                var vmrcheck = VMRNUMBER.match(VMRPREFIX);
                 console.log("Prefixcheck is: " + prefixcheck);
-                if (prefixcheck)
+                if (prefixcheck && vmrcheck)
                 {
                     console.log("Matched prefixcheck");
                 }
@@ -273,6 +280,20 @@ function OutOfVMR()
             });
     }
 
+function FetchPin()
+    {
+        xapi.command("UserInterface Message TextInput Display", {
+            Duration: 45
+            , FeedbackId:'vmrpin'
+            , InputType: 'PIN'
+            , KeyboardState:'Open'
+            , Placeholder:'Please enter the host pin PIN'
+            , SubmitText:'Submit PIN'
+            , Title: 'Conference Pin'
+            , Text: 'Please enter the host pin PIN'
+            });
+    }
+
 xapi.status.on('Call', InCallStatus =>
   {
     //console.log(InCallStatus);
@@ -296,15 +317,39 @@ xapi.status.on('Call', InCallStatus =>
 xapi.status.on('SystemUnit State NumberOfActiveCalls', NumCalls =>
     {
         NumCall = Number.parseInt(NumCalls);
+        if (NumCall === 0)
+        {
+            VMRPIN = ""
+            OutOfVMR();
+            StopTimer();
+        }
     }
 );
 
 xapi.event.on('UserInterface Extensions Panel Clicked', (event) => 
     {
-        if (event.PanelId === "layout")
+        var prefixcheck = VMRNUMBER.match(ESCALATEPREFIX);
+        var vmrcheck = VMRNUMBER.match(VMRPREFIX);
+        if (prefixcheck)
         {
-            console.log("Showing Layout Menu");
-            ShowLayoutMenu();
+            if (event.PanelId === "layout")
+            {
+                console.log("Showing Layout Menu");
+                ShowLayoutMenu();
+            }
+        }
+        else if (vmrcheck)
+        {
+            if (VMRPIN === "")
+            {
+                console.log("Not in escalated conference, asking for pin... ");
+                FetchPin();
+            }
+            else
+            {
+                console.log("Showing Layout Menu");
+                ShowLayoutMenu();
+            }
         }
     }
 );
@@ -335,6 +380,18 @@ xapi.event.on('UserInterface Message Prompt Response', (event) =>
                 break;
         }
     }
+});
+
+xapi.event.on('UserInterface Message TextInput Response', (event) => {
+    switch(event.FeedbackId)
+    {
+        case 'vmrpin':
+            console.log("Showing layout menu with Pin: " + event.Text)
+            VMRPIN = event.Text
+            CallPexipVMR(VMRNUMBER, REQUESTTOKEN);
+            ShowLayoutMenu();
+	        break;
+	}
 });
 
 /*
