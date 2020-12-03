@@ -8,10 +8,10 @@
 *This macro was not created by a developer, therefore the code looks like a spaghetti mess thrown together*
 
 **Functionality**: This macro allows a user to control the layout on a by using a Pexip VMR
-s
+
 **Requirements**: 
-    1. Endpoint has to be registered on CUCM or be in a call with a known Pexip VMR
-    2. VMR address has to be matchable using regex  
+1. Endpoint has to be registered on CUCM or be in a call with a known Pexip VMR
+2. VMR address has to be matchable using regex  
 
 **How To**: 
 1. Change PEXIP_INSTANCE_URL to point to your conferencing node
