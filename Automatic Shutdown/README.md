@@ -7,8 +7,9 @@
 *This macro was not created by a developer, therefore the code looks like a spaghetti mess thrown together*
 
 
-- **Functionality**: The intention with this script is to 'forcefully' turn off the system due to it being projector based. The user at the time specificed will be asked if she/he wants to turn off the system or extend the usage of the system. If the system is in call the check will continue in a loop until the system is out of call. 
-- **Requirements**: 
+**Functionality**: The intention with this script is to 'forcefully' turn off the system due to it being projector based. The user at the time specificed will be asked if she/he wants to turn off the system or extend the usage of the system. If the system is in call the check will continue in a loop until the system is out of call. 
+
+**Requirements**: 
     1. CE based endpoint
     2. Projector based system (not a requirement but with screens its not a need)
 
