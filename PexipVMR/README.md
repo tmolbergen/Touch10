@@ -12,7 +12,7 @@
     1. Endpoint has to be registered on CUCM or be in a call with a known Pexip VMR
     2. VMR address has to be matchable using regex  
 
-**HowTo**: 
+**How To**: 
 1. Change PEXIP_INSTANCE_URL to point to your conferencing node
     - This conferencing node should be reachable via HTTPS from the endpoint
 2. Change ESCALATEPREFIX to match your numberpattern on your VMRs
