@@ -52,39 +52,80 @@ function CallPexipVMR(conference, option)
     if(option == '/request_token')
     {
         console.log("Matched request Token: " + PEXIP_VMR + conference + option);
-        xapi.command('HttpClient Post',
-            {
-            'Header': 
-            [
-            'Content-Type: application/json',
-            'pin:' + VMRPIN,
-            ],
-            'Url': PEXIP_VMR + conference + option,
-            'AllowInsecureHTTPS': 'True',
-            'ResultBody': 'PlainText'
-            }, JSON.stringify(postarguments))
-        .then(
-        (result) => 
-            {
-            //var body = result;
-            for (var member in result) console.log(member);
-            //console.log(body);
-            console.log(result.Body);
-            var bodystring = JSON.parse(result.Body);
-            token = bodystring.result.token;
-            timeout = bodystring.result.expires -110;
-            console.log(token);
-            console.log(timeout);
-            StopTimer();
-            startTimer(timeout, conference); //startTimer(timeout, conference, option);
-            }
-        )
-        .catch(
-        (result) =>
-            {
-            console.error(result);
-            }
-        );
+        var prefixcheck = VMRNUMBER.match(ESCALATEPREFIX);
+        var vmrcheck = VMRNUMBER.match(VMRPREFIX)
+        if (vmrcheck)
+        {
+            xapi.command('HttpClient Post',
+                {
+                'Header': 
+                [
+                'Content-Type: application/json',
+                'pin:' + VMRPIN,
+                ],
+                'Url': PEXIP_VMR + conference + option,
+                'AllowInsecureHTTPS': 'True',
+                'ResultBody': 'PlainText'
+                }, JSON.stringify(postarguments))
+            .then(
+            (result) => 
+                {
+                //var body = result;
+                for (var member in result) console.log(member);
+                //console.log(body);
+                console.log(result.Body);
+                var bodystring = JSON.parse(result.Body);
+                token = bodystring.result.token;
+                timeout = bodystring.result.expires -110;
+                console.log(token);
+                console.log(timeout);
+                StopTimer();
+                startTimer(timeout, conference); //startTimer(timeout, conference, option);
+                }
+            )
+            .catch(
+            (result) =>
+                {
+                console.error(result);
+                }
+            );
+            
+        }
+        else if(prefixcheck)
+        {
+            xapi.command('HttpClient Post',
+                {
+                'Header': 
+                [
+                'Content-Type: application/json',
+                ],
+                'Url': PEXIP_VMR + conference + option,
+                'AllowInsecureHTTPS': 'True',
+                'ResultBody': 'PlainText'
+                }, JSON.stringify(postarguments))
+            .then(
+            (result) => 
+                {
+                //var body = result;
+                for (var member in result) console.log(member);
+                //console.log(body);
+                console.log(result.Body);
+                var bodystring = JSON.parse(result.Body);
+                token = bodystring.result.token;
+                timeout = bodystring.result.expires -110;
+                console.log(token);
+                console.log(timeout);
+                StopTimer();
+                startTimer(timeout, conference); //startTimer(timeout, conference, option);
+                }
+            )
+            .catch(
+            (result) =>
+                {
+                console.error(result);
+                }
+            );
+        }
     }
     else if(option == '/refresh_token' || option == '/release_token' )
     {
